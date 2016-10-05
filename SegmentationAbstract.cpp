@@ -71,8 +71,7 @@ double SegmentationAbstract::findThresholdRosin(){
     double minValue = *std::min_element(distances.begin(), distances.end());
     double range = maxValue - minValue;
     int nbInterval = range / res;
-    trace.info()<<"max:"<<maxValue<<std::endl;
-    trace.info()<<"min:"<<minValue<<std::endl;
+
     std::vector<int> histogram(nbInterval, 0);
     for(unsigned int i = 0; i < myPoints.size(); i++){
         int index = (distances.at(i) - minValue)/res;
@@ -103,17 +102,7 @@ double SegmentationAbstract::findThresholdRosin(){
     double bestThresIndex = maxFreqIndex;
     double bestDist = 0;
 
-    trace.info()<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
-    trace.info()<<"last val:"<<lastValue<<std::endl;
-    trace.info()<<"last ind"<<lastIndex<<std::endl;
-
-    trace.info()<<"max val:"<<maxFreqValue<<std::endl;
-    trace.info()<<"max ind"<<maxFreqIndex<<std::endl;
-    
-    trace.info()<<"valDiff"<<valueDiff<<std::endl;
-    trace.info()<<"indexDiff"<<indexDiff<<std::endl;
-    trace.info()<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
-    //life between maxFreq and last element of historgram
+    //line between maxFreq and last element of historgram
     double a = (lastValue - maxFreqValue)*1.0/(lastIndex - maxFreqIndex);
     double b = maxFreqValue - a * maxFreqIndex;
 
@@ -129,21 +118,6 @@ double SegmentationAbstract::findThresholdRosin(){
             trace.info()<<"bestThresIndex xxx:"<<bestThresIndex<< std::endl;
         }
     }
-    //convert index to real value
-trace.info()<<"bestIndex: "<< bestThresIndex<<std::endl; 
-trace.info()<<"maxIndex: "<< maxFreqIndex<<std::endl; 
-trace.error()<<"@@@@@@@@@@@@@@@@@@@@@@@"<<std::endl;
-//trace.info()<<"a b"<<a<< "  "<< b << std::endl;
-
-
-    trace.info()<<"last val:"<<lastValue<<std::endl;
-    trace.info()<<"last ind"<<lastIndex * res + minValue<<std::endl;
-
-    trace.info()<<"max val:"<<maxFreqValue<<std::endl;
-    trace.info()<<"max ind:"<<maxFreqIndex * res + minValue<<std::endl;
-    
-    trace.info()<<"bestValue: "<< histogram.at(bestThresIndex)<<std::endl; 
-    trace.info()<<"bestIndex: "<< bestThresIndex * res + minValue<<std::endl; 
 
     /**
      * perpendicular line: -1/a + c passe through bestThresIndex
@@ -225,6 +199,11 @@ SegmentationAbstract::getRadialVector(const Z3i::RealPoint &aPoint, const Z3i::R
     double dist = aDirection.dot(aPoint - p0);
     Z3i::RealPoint proj = p0 + dist*aDirection;
     return aPoint - proj;
+}
+
+
+
+void convertToCcs(){
 }
 
 void

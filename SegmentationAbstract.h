@@ -77,6 +77,8 @@ class SegmentationAbstract{
         void computeSegmentsAndRadii();
         void computeBeginOfSegment();
         void computeSegments();
+		void convertToCcs();
+
         //should be change to computeLocalCoordinate vectors
         void computeVectorMarks();
         virtual void computeDistances() = 0;
