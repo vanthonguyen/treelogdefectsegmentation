@@ -15,10 +15,12 @@ The program uses some C++ 11 feature, so we recommend the use of gcc 4.7 or late
 ### CMake 2.6 or later
 
 ## Install
-* mkdir build
-* cd build
-* cmake ..  -DDGtal_DIR=/path/to/DGtal
-* make
+```
+mkdir build
+cd build
+cmake ..  -DDGtal_DIR=/path/to/DGtal
+make
+```
 #User guide
 User can find the example in the Main.cpp that include:
 * Computation of centerline:
