@@ -7,12 +7,12 @@ You can test the program [online]
 This guide is to install the program on linux operation system. This may work for unix-like operation system like MacOs or BSD, but we did not test. It could be compiled and run in windows operating system, however some additional software should be installed like mingw or MS C++ compiler.
 ## Dependencies
 The program uses some C++ 11 feature, so we recommend the use of gcc 4.7 or later to compile. The program requires these libraries to be installed:
-### Boost 1.46 or later
-### DGtal version 0.9 or later. To install DGtal see [DGtal installation] (https://github.com/DGtal-team/DGtal/blob/master/README.md)
-### PCL version 1.7 or later
-### Eigen3
-### GNU GSL 
-### CMake 2.6 or later
+###### Boost 1.46 or later
+###### DGtal version 0.9 or later. To install DGtal see [DGtal installation] (https://github.com/DGtal-team/DGtal/blob/master/README.md)
+###### PCL version 1.7 or later
+###### Eigen3
+###### GNU GSL 
+###### CMake 2.6 or later
 
 ## Install
 ```
