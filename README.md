@@ -1,5 +1,5 @@
 #Introduction
-Source code of the paper "Segmentation of defects on log surface from terrestrial Lidar data"
+Source code of the paper ICPR 2016 "Segmentation of defects on log surface from terrestrial Lidar data"
 #Online demo
 You can test the program [online]
 (http://ipol-geometry.loria.fr/~kerautre/ipol_demo/TDD_IPOLDemo/)
