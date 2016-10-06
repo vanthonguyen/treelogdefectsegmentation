@@ -35,7 +35,7 @@ class SegmentationAbstract{
                        pointCloud(aCloud), fiber(aFib), arcLength(arcLen), patchHeight(wh){
         }
 
-        virtual void init();
+        virtual void init() = 0;
         std::vector<unsigned int> getDefect();
         
         std::vector<unsigned int> getDefect(double threshold);

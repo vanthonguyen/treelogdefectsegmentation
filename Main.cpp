@@ -189,16 +189,6 @@ trace.info()<<"pointcloud:"<<pointCloud.size()<<std::endl;
     IOHelper::export2Text(defects, outputPrefix + "-defect.id");
     IOHelper::export2Text(facesToDelete, outputPrefix + "-def-faces.id");
 
-	//write centerline
-	Mesh<Z3i::RealPoint> transMesh = oriMesh;
-	for(unsigned int i =0; i< transMesh.nbFaces(); i++){
-		transMesh.setFaceColor(i, DGtal::Color(120, 120 ,120, 180));
-	}
-	Mesh<Z3i::RealPoint>::createTubularMesh(transMesh, fiber, 1, 0.1, DGtal::Color::Blue);
-	Mesh<Z3i::RealPoint>::createTubularMesh(transMesh, centerline, 1, 0.1, DGtal::Color::Red);
-
-	IOHelper::export2OFF(transMesh, "centerline.off");
-
 trace.info()<<"finished"<<std::endl;
     return 0;
 }
