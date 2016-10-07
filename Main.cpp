@@ -44,7 +44,7 @@ main(int argc,char **argv)
         ("trackStep,s", po::value<double>(), "tracking step.")
         ("invertNormal,n", "invert normal to apply accumulation.")
         ("arcLength,a", po::value<double>()->default_value(3.0), "Arc length/ width of band")
-        ("binSize,b", po::value<double>()->default_value(3.0), "Arc length/ width of band")
+        ("binWidth,b", po::value<double>()->default_value(5.0), "Arc length/ width of band")
         ("patchHeight,e", po::value<int>()->default_value(5), "The number of segment used to compute ... should be odd")
 		("voxelSize", po::value<int>()->default_value(1), "Voxel size")
         ("output,o", po::value<std::string>()->default_value("defect"), "output defect clusters into file defect0.xyz, defect1.xyz, ...");
@@ -76,6 +76,7 @@ main(int argc,char **argv)
 	double trackStep = vm["trackStep"].as<double>() / voxelSize;
 	bool invertNormal = vm.count("invertNormal");
 
+	double binWidth = vm["binWidth"].as<double>() / voxelSize;
 
     DGtal::Mesh<Z3i::RealPoint> oriMesh(true);
     std::string inputMeshName = vm["input"].as<std::string>();
@@ -120,7 +121,7 @@ trace.info()<<"fiber:"<<centerline.size()<<std::endl;
 trace.info()<<"pointcloud:"<<pointCloud.size()<<std::endl;
 
     std::vector<unsigned int> noDefectCloudIndices;
-    DefectSegmentation sa(pointCloud, centerline, arcLength, patchHeight);
+    DefectSegmentation sa(pointCloud, centerline, arcLength, patchHeight, binWidth);
     sa.init();
     std::vector<unsigned int> defects = sa.getDefect();
     std::vector<double> distances = sa.getDistances();

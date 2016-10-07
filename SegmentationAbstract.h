@@ -19,7 +19,6 @@
 
 #include "CylindricalPoint.h"
 
-#define BIN_SIZE 0.01
 using namespace DGtal;
 
 
@@ -31,8 +30,8 @@ struct CylindricalPointOrder {
 
 class SegmentationAbstract{
     public:
-        SegmentationAbstract(std::vector<Z3i::RealPoint> &aCloud, std::vector<Z3i::RealPoint> &aFib, double arcLen, int wh):
-                       pointCloud(aCloud), fiber(aFib), arcLength(arcLen), patchHeight(wh){
+        SegmentationAbstract(std::vector<Z3i::RealPoint> &aCloud, std::vector<Z3i::RealPoint> &aFib, double arcLen, int wh, double bw):
+                       pointCloud(aCloud), fiber(aFib), arcLength(arcLen), patchHeight(wh), binWidth(bw){
         }
 
         virtual void init() = 0;
@@ -131,6 +130,9 @@ class SegmentationAbstract{
         //
         //difference between
         std::vector<double> distances;
+
+		//bin width used by Rosin method
+		double binWidth;
             
         double radii;
 };

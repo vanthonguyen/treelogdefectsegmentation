@@ -67,7 +67,7 @@ SegmentationAbstract::allocate(){
 
 double SegmentationAbstract::findThresholdRosin(){
     //build histogram
-    double res = BIN_SIZE; //must be configurable?
+    double res = binWidth; //must be configurable?
     double maxValue = *std::max_element(distances.begin(), distances.end());
     double minValue = *std::min_element(distances.begin(), distances.end());
     double range = maxValue - minValue;
@@ -239,6 +239,8 @@ void SegmentationAbstract::convertToCcs(){
 		//angle
         myPoints[i].angle = angle;
 	}
+	radii = sumRadii/pointCloud.size();
+
 }
 
 
