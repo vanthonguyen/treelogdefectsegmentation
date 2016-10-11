@@ -46,3 +46,10 @@ Now you can use the helper class IOHelper to write the results to files. For exa
 ```
 IOHelper::export2Text(defects, outputPrefix + "-defect.id");
 ```
+
+* Run the program
+```
+  ./segmentation -i mesh.off --voxelSize 5 --accRadius \
+  100 --trackStep 25 --patchWidth 25 --patchHeight 100 \
+  --binWidth 5 --invertNormal true --output prefix
+```
