@@ -30,13 +30,13 @@ void
 DefectSegmentation::init(){
     allocate();
     allocateExtra();
-    computeSegmentsAndRadii();
 
     computeBeginOfSegment();
     computeVectorMarks();
     computePlaneNormals();
-    computeAngleOfPoints();
-//    computeCells();
+
+	convertToCcs();
+
     computeEquations();
     computeDistances();
     //debug
