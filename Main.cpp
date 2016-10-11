@@ -47,7 +47,7 @@ main(int argc,char **argv)
         ("binWidth,b", po::value<double>()->default_value(5.0), "Arc length/ width of band")
         ("patchHeight,e", po::value<int>()->default_value(5), "The number of segment used to compute ... should be odd")
 		("voxelSize", po::value<int>()->default_value(1), "Voxel size")
-        ("output,o", po::value<std::string>()->default_value("defect"), "output defect clusters into file defect0.xyz, defect1.xyz, ...");
+        ("output,o", po::value<std::string>()->default_value("defect"), "output");
 
     bool parseOK=true;
     po::variables_map vm;
