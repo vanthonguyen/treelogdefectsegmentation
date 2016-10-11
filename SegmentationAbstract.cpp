@@ -34,12 +34,13 @@ CylindricalPointOrder::operator() (CylindricalPoint p1, CylindricalPoint p2) {
 void
 SegmentationAbstract::init(){
     allocate();
-    computeSegmentsAndRadii();
+//    computeSegmentsAndRadii();
 
     computeBeginOfSegment();
     computeVectorMarks();
     computePlaneNormals();
-    computeAngleOfPoints();
+	convertToCcs();
+//    computeAngleOfPoints();
 //    computeCells();
     computeEquations();
     computeDistances();
@@ -66,13 +67,12 @@ SegmentationAbstract::allocate(){
 
 double SegmentationAbstract::findThresholdRosin(){
     //build histogram
-    double res = BIN_SIZE; //must be configurable?
+    double res = binWidth; //must be configurable?
     double maxValue = *std::max_element(distances.begin(), distances.end());
     double minValue = *std::min_element(distances.begin(), distances.end());
     double range = maxValue - minValue;
     int nbInterval = range / res;
-    trace.info()<<"max:"<<maxValue<<std::endl;
-    trace.info()<<"min:"<<minValue<<std::endl;
+
     std::vector<int> histogram(nbInterval, 0);
     for(unsigned int i = 0; i < myPoints.size(); i++){
         int index = (distances.at(i) - minValue)/res;
@@ -103,17 +103,7 @@ double SegmentationAbstract::findThresholdRosin(){
     double bestThresIndex = maxFreqIndex;
     double bestDist = 0;
 
-    trace.info()<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
-    trace.info()<<"last val:"<<lastValue<<std::endl;
-    trace.info()<<"last ind"<<lastIndex<<std::endl;
-
-    trace.info()<<"max val:"<<maxFreqValue<<std::endl;
-    trace.info()<<"max ind"<<maxFreqIndex<<std::endl;
-    
-    trace.info()<<"valDiff"<<valueDiff<<std::endl;
-    trace.info()<<"indexDiff"<<indexDiff<<std::endl;
-    trace.info()<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<std::endl;
-    //life between maxFreq and last element of historgram
+    //line between maxFreq and last element of historgram
     double a = (lastValue - maxFreqValue)*1.0/(lastIndex - maxFreqIndex);
     double b = maxFreqValue - a * maxFreqIndex;
 
@@ -129,21 +119,6 @@ double SegmentationAbstract::findThresholdRosin(){
             trace.info()<<"bestThresIndex xxx:"<<bestThresIndex<< std::endl;
         }
     }
-    //convert index to real value
-trace.info()<<"bestIndex: "<< bestThresIndex<<std::endl; 
-trace.info()<<"maxIndex: "<< maxFreqIndex<<std::endl; 
-trace.error()<<"@@@@@@@@@@@@@@@@@@@@@@@"<<std::endl;
-//trace.info()<<"a b"<<a<< "  "<< b << std::endl;
-
-
-    trace.info()<<"last val:"<<lastValue<<std::endl;
-    trace.info()<<"last ind"<<lastIndex * res + minValue<<std::endl;
-
-    trace.info()<<"max val:"<<maxFreqValue<<std::endl;
-    trace.info()<<"max ind:"<<maxFreqIndex * res + minValue<<std::endl;
-    
-    trace.info()<<"bestValue: "<< histogram.at(bestThresIndex)<<std::endl; 
-    trace.info()<<"bestIndex: "<< bestThresIndex * res + minValue<<std::endl; 
 
     /**
      * perpendicular line: -1/a + c passe through bestThresIndex
@@ -227,22 +202,47 @@ SegmentationAbstract::getRadialVector(const Z3i::RealPoint &aPoint, const Z3i::R
     return aPoint - proj;
 }
 
-void
-SegmentationAbstract::computeSegmentsAndRadii(){
+
+
+void SegmentationAbstract::convertToCcs(){
     double sumRadii = 0.0;
     for(unsigned int i = 0; i < pointCloud.size(); i++){
-        unsigned int segmentId = getSegment(pointCloud[i]);
+        Z3i::RealPoint aPoint = pointCloud.at(i);
+        unsigned int segmentId = getSegment(aPoint);
+
         myPoints[i].segmentId = segmentId;
         assert(segmentId < fiber.size() - 1);
+
         Z3i::RealPoint aDir = fiber[segmentId + 1] - fiber[segmentId];
         aDir = aDir / aDir.norm();
         Z3i::RealPoint vectRadial = getRadialVector(pointCloud[i], aDir, fiber[segmentId]);
         double ra = vectRadial.norm();
         sumRadii += ra;
+		//radius of point
         myPoints[i].radius = ra;
-    }
-    radii = sumRadii/pointCloud.size();
+
+        Z3i::RealPoint p0 = fiber[segmentId];
+        Z3i::RealPoint vectDir = getDirectionVector(segmentId);
+        Z3i::RealPoint vect = aPoint - p0;
+        double dist = vect.dot(vectDir);
+		//z
+        myPoints[i].height = beginOfSegment[segmentId] + dist;
+
+        double angle = acos(vectRadial.dot(vectMarks[segmentId])/
+                vectMarks[segmentId].norm()/vectRadial.norm());
+        //Z3i::RealPoint crossProduct = vectMarks[segmentId].crossProduct(vectRadial);
+        Z3i::RealPoint u = vectMarks[segmentId].crossProduct(vectDir);
+        if (u.dot(vectRadial) < 0)
+        {
+            angle = 2 * M_PI - angle;
+        }
+		//angle
+        myPoints[i].angle = angle;
+	}
+	radii = sumRadii/pointCloud.size();
+
 }
+
 
 void
 SegmentationAbstract::computeBeginOfSegment(){
@@ -293,31 +293,6 @@ SegmentationAbstract::computeVectorMarks(){
 
         vectMarks[i] = w.getNormalized();
         lastVectMark = vectMarks[i];
-    }
-}
-
-void SegmentationAbstract::computeAngleOfPoints(){
-    for(unsigned int i = 0; i < pointCloud.size();i++){
-        Z3i::RealPoint aPoint = pointCloud.at(i);
-        unsigned int segmentId = myPoints[i].segmentId;
-        Z3i::RealPoint p0 = fiber[segmentId];
-        Z3i::RealPoint vectDir = getDirectionVector(segmentId);
-        Z3i::RealPoint vect = aPoint - p0;
-        double dist = vect.dot(vectDir);
-
-        myPoints[i].height = beginOfSegment[segmentId] + dist;
-        Z3i::RealPoint prjPoint = p0 + dist*vectDir;
-        Z3i::RealPoint vectRadial = aPoint - prjPoint;
-
-        double angle = acos(vectRadial.dot(vectMarks[segmentId])/
-                vectMarks[segmentId].norm()/vectRadial.norm());
-        //Z3i::RealPoint crossProduct = vectMarks[segmentId].crossProduct(vectRadial);
-        Z3i::RealPoint u = vectMarks[segmentId].crossProduct(vectDir);
-        if (u.dot(vectRadial) < 0)
-        {
-            angle = 2 * M_PI - angle;
-        }
-        myPoints[i].angle = angle;
     }
 }
 
