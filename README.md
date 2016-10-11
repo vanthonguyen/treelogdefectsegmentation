@@ -5,3 +5,5 @@ Source code of the paper "Segmentation of defects on log surface from terrestria
 #Installation
 
 #User guide
+If you want you can also directly test the programm online:
+

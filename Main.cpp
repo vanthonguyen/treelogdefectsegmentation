@@ -43,11 +43,11 @@ main(int argc,char **argv)
         ("accRadius,r", po::value<double>(), "accumulation radius.")
         ("trackStep,s", po::value<double>(), "tracking step.")
         ("invertNormal,n", "invert normal to apply accumulation.")
-        ("arcLength,a", po::value<double>()->default_value(3.0), "Arc length/ width of band")
         ("binSize,b", po::value<double>()->default_value(3.0), "Arc length/ width of band")
-        ("patchHeight,e", po::value<int>()->default_value(5), "The number of segment used to compute ... should be odd")
+        ("arcLength,a", po::value<double>()->default_value(25.0), "patch width")
+        ("patchHeight,e", po::value<int>()->default_value(100), "Height of patch ")
 		("voxelSize", po::value<int>()->default_value(1), "Voxel size")
-        ("output,o", po::value<std::string>()->default_value("defect"), "output defect clusters into file defect0.xyz, defect1.xyz, ...");
+        ("output,o", po::value<std::string>()->default_value("output"), "output prefix: output-defect.off, output-def-faces-ids, ...");
 
     bool parseOK=true;
     po::variables_map vm;
