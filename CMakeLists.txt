@@ -40,3 +40,7 @@ ADD_EXECUTABLE(segmentation Main Statistic IOHelper DefectSegmentation Segmentat
 	Centerline/Centerline)
 TARGET_LINK_LIBRARIES(segmentation ${DGTAL_LIBRARIES}  ${DGtalToolsLibDependencies} ${PCLLib} ${GSL_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT})
+
+ADD_EXECUTABLE(colorizeMesh colorizeMesh IOHelper)
+TARGET_LINK_LIBRARIES(colorizeMesh ${DGTAL_LIBRARIES}  ${DGtalToolsLibDependencies})
+

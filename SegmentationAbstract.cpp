@@ -67,7 +67,7 @@ SegmentationAbstract::allocate(){
 
 double SegmentationAbstract::findThresholdRosin(){
     //build histogram
-    double res = BIN_SIZE; //must be configurable?
+    double res = binWidth; //must be configurable?
     double maxValue = *std::max_element(distances.begin(), distances.end());
     double minValue = *std::min_element(distances.begin(), distances.end());
     double range = maxValue - minValue;
@@ -115,8 +115,8 @@ double SegmentationAbstract::findThresholdRosin(){
         if(dist > bestDist){
             bestDist = dist;
             bestThresIndex = i;
-            trace.info()<<"distxxx:"<<bestDist<< std::endl;
-            trace.info()<<"bestThresIndex xxx:"<<bestThresIndex<< std::endl;
+            //trace.info()<<"dist:"<<bestDist<< std::endl;
+            //trace.info()<<"bestThresIndex:"<<bestThresIndex<< std::endl;
         }
     }
 
@@ -228,8 +228,6 @@ void SegmentationAbstract::convertToCcs(){
 		//z
         myPoints[i].height = beginOfSegment[segmentId] + dist;
 
-        Z3i::RealPoint prjPoint = p0 + dist*vectDir;
-        Z3i::RealPoint vectRadial = aPoint - prjPoint;
 
         double angle = acos(vectRadial.dot(vectMarks[segmentId])/
                 vectMarks[segmentId].norm()/vectRadial.norm());
@@ -242,24 +240,9 @@ void SegmentationAbstract::convertToCcs(){
 		//angle
         myPoints[i].angle = angle;
 	}
+	radii = sumRadii / pointCloud.size();
 }
 
-void
-SegmentationAbstract::computeSegmentsAndRadii(){
-    double sumRadii = 0.0;
-    for(unsigned int i = 0; i < pointCloud.size(); i++){
-        unsigned int segmentId = getSegment(pointCloud[i]);
-        myPoints[i].segmentId = segmentId;
-        assert(segmentId < fiber.size() - 1);
-        Z3i::RealPoint aDir = fiber[segmentId + 1] - fiber[segmentId];
-        aDir = aDir / aDir.norm();
-        Z3i::RealPoint vectRadial = getRadialVector(pointCloud[i], aDir, fiber[segmentId]);
-        double ra = vectRadial.norm();
-        sumRadii += ra;
-        myPoints[i].radius = ra;
-    }
-    radii = sumRadii/pointCloud.size();
-}
 
 void
 SegmentationAbstract::computeBeginOfSegment(){
@@ -310,31 +293,6 @@ SegmentationAbstract::computeVectorMarks(){
 
         vectMarks[i] = w.getNormalized();
         lastVectMark = vectMarks[i];
-    }
-}
-
-void SegmentationAbstract::computeAngleOfPoints(){
-    for(unsigned int i = 0; i < pointCloud.size();i++){
-        Z3i::RealPoint aPoint = pointCloud.at(i);
-        unsigned int segmentId = myPoints[i].segmentId;
-        Z3i::RealPoint p0 = fiber[segmentId];
-        Z3i::RealPoint vectDir = getDirectionVector(segmentId);
-        Z3i::RealPoint vect = aPoint - p0;
-        double dist = vect.dot(vectDir);
-
-        myPoints[i].height = beginOfSegment[segmentId] + dist;
-        Z3i::RealPoint prjPoint = p0 + dist*vectDir;
-        Z3i::RealPoint vectRadial = aPoint - prjPoint;
-
-        double angle = acos(vectRadial.dot(vectMarks[segmentId])/
-                vectMarks[segmentId].norm()/vectRadial.norm());
-        //Z3i::RealPoint crossProduct = vectMarks[segmentId].crossProduct(vectRadial);
-        Z3i::RealPoint u = vectMarks[segmentId].crossProduct(vectDir);
-        if (u.dot(vectRadial) < 0)
-        {
-            angle = 2 * M_PI - angle;
-        }
-        myPoints[i].angle = angle;
     }
 }
 
