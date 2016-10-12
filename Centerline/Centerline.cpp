@@ -67,6 +67,7 @@ Centerline::optimizeElasticForces(std::vector<Z3i::RealPoint> aFiberRaw, double 
     //ring with no face
     double radii = sumRadiis / nbFaces;
 
+
     double deltaE;
     unsigned int  num = 0;
     double previousTot = 0;
@@ -175,7 +176,7 @@ Centerline::trackPatchCenter(const Z3i::Point &aStartingPoint, bool firstDirecti
       dirVect *= -1.0;
     }
     //dirVect = (dirVect + lastDirVect ).getNormalized();
-    trace.error() << "dirVect" << dirVect<<std::endl;
+    //trace.error() << "dirVect" << dirVect<<std::endl;
     continueTracking = isFurtherInside(currentPoint, previousPoint, trackStep );
     if (!continueTracking) {
       trace.info() << std::endl << "Dir  track "<< dirVect << std::endl;

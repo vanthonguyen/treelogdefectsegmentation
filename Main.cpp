@@ -43,11 +43,11 @@ main(int argc,char **argv)
         ("accRadius,r", po::value<double>(), "accumulation radius.")
         ("trackStep,s", po::value<double>(), "tracking step.")
         ("invertNormal,n", "invert normal to apply accumulation.")
-        ("arcLength,a", po::value<double>()->default_value(3.0), "Arc length/ width of band")
-        ("binWidth,b", po::value<double>()->default_value(5.0), "Arc length/ width of band")
-        ("patchHeight,e", po::value<int>()->default_value(5), "The number of segment used to compute ... should be odd")
+        ("binWidth,b", po::value<double>()->default_value(5.0), "bin width used to compute threshold")
+        ("patchWidth,a", po::value<double>()->default_value(25), "Arc length/ width of patch")
+        ("patchHeight,e", po::value<int>()->default_value(100), "Height of patch")
 		("voxelSize", po::value<int>()->default_value(1), "Voxel size")
-        ("output,o", po::value<std::string>()->default_value("defect"), "output defect clusters into file defect0.xyz, defect1.xyz, ...");
+        ("output,o", po::value<std::string>()->default_value("output"), "output prefix: output-defect.off, output-def-faces-ids, ...");
 
     bool parseOK=true;
     po::variables_map vm;
@@ -59,8 +59,14 @@ main(int argc,char **argv)
 	}
 
 	po::notify(vm);
-	if(vm.count("help")||argc<=1|| !parseOK || !vm.count("input") || !vm.count("accRadius"))
-	{
+	if(vm.count("help") || argc<=1 || !parseOK || !vm.count("input") || !vm.count("accRadius") || !vm.count("trackStep")){
+		if(!vm.count("input")){
+			trace.error()<<"the input mesh is required!"<<std::endl;
+		}else if( !vm.count("accRadius") ){
+			trace.error()<<"the accRadius is required!"<<std::endl;
+		}else if( !vm.count("trackStep") ){
+			trace.error()<<"the trackStep is required!"<<std::endl;
+		}
 		trace.info()<< "Segmentation log defects" <<std::endl << "Options: "<<std::endl
 			<< general_opt << "\n";
 		return 0;
@@ -113,15 +119,15 @@ trace.info()<<"accRadius:"<<accRadius<<std::endl;
 
 	std::vector<Z3i::RealPoint> centerline = CenterlineHelper::getSmoothCenterlineBSplines(domain, fiber);
 
-    double arcLength = vm["arcLength"].as<double>(); 
+    double patchWidth = vm["patchWidth"].as<double>(); 
     int patchHeight = vm["patchHeight"].as<int>(); 
 
-trace.info()<<"arc:"<<arcLength<<std::endl;
+trace.info()<<"arc:"<<patchWidth<<std::endl;
 trace.info()<<"fiber:"<<centerline.size()<<std::endl;
 trace.info()<<"pointcloud:"<<pointCloud.size()<<std::endl;
 
     std::vector<unsigned int> noDefectCloudIndices;
-    DefectSegmentation sa(pointCloud, centerline, arcLength, patchHeight, binWidth);
+    DefectSegmentation sa(pointCloud, centerline, patchWidth, patchHeight, binWidth);
     sa.init();
     std::vector<unsigned int> defects = sa.getDefect();
     std::vector<double> distances = sa.getDistances();
