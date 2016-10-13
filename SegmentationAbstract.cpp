@@ -68,6 +68,7 @@ SegmentationAbstract::allocate(){
 double SegmentationAbstract::findThresholdRosin(){
     //build histogram
     double res = binWidth; //must be configurable?
+//trace.error()<<"binWidth:"<<binWidth<<std::endl;
     double maxValue = *std::max_element(distances.begin(), distances.end());
     double minValue = *std::min_element(distances.begin(), distances.end());
     double range = maxValue - minValue;
@@ -153,6 +154,7 @@ double SegmentationAbstract::findThresholdRosin(){
     }
 
     IOHelper::export2Text(histForPlot, "hist2d");
+	trace.info()<<"threshold: "<< bestThresIndex*res + minValue<<std::endl;
     return bestThresIndex*res + minValue;
 }
 

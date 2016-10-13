@@ -82,7 +82,7 @@ main(int argc,char **argv)
 	double trackStep = vm["trackStep"].as<double>() / voxelSize;
 	bool invertNormal = vm.count("invertNormal");
 
-	double binWidth = vm["binWidth"].as<double>() / voxelSize;
+	double binWidth = vm["binWidth"].as<double>();
 
     DGtal::Mesh<Z3i::RealPoint> oriMesh(true);
     std::string inputMeshName = vm["input"].as<std::string>();
