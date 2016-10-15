@@ -118,6 +118,16 @@ trace.info()<<"accRadius:"<<accRadius<<std::endl;
 						 Z3i::Point((int) ptUp[0], (int) ptUp[1], (int) ptUp[2]));
 
 	std::vector<Z3i::RealPoint> centerline = CenterlineHelper::getSmoothCenterlineBSplines(domain, fiber);
+	//return 1;
+	//write centerline
+	Mesh<Z3i::RealPoint> transMesh = oriMesh;
+	for(unsigned int i =0; i< transMesh.nbFaces(); i++){
+		transMesh.setFaceColor(i, DGtal::Color(120, 120 ,120, 180));
+	}
+	Mesh<Z3i::RealPoint>::createTubularMesh(transMesh, fiber, 1, 0.1, DGtal::Color::Blue);
+	Mesh<Z3i::RealPoint>::createTubularMesh(transMesh, centerline, 1, 0.1, DGtal::Color::Red);
+
+	IOHelper::export2OFF(transMesh, "centerline.off");
 
     double patchWidth = vm["patchWidth"].as<double>(); 
     int patchHeight = vm["patchHeight"].as<int>(); 
