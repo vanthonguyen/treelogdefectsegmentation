@@ -68,6 +68,7 @@ SegmentationAbstract::allocate(){
 double SegmentationAbstract::findThresholdRosin(){
     //build histogram
     double res = binWidth; //must be configurable?
+//trace.error()<<"binWidth:"<<binWidth<<std::endl;
     double maxValue = *std::max_element(distances.begin(), distances.end());
     double minValue = *std::min_element(distances.begin(), distances.end());
     double range = maxValue - minValue;
@@ -115,8 +116,8 @@ double SegmentationAbstract::findThresholdRosin(){
         if(dist > bestDist){
             bestDist = dist;
             bestThresIndex = i;
-            trace.info()<<"distxxx:"<<bestDist<< std::endl;
-            trace.info()<<"bestThresIndex xxx:"<<bestThresIndex<< std::endl;
+            //trace.info()<<"dist:"<<bestDist<< std::endl;
+            //trace.info()<<"bestThresIndex:"<<bestThresIndex<< std::endl;
         }
     }
 
@@ -153,6 +154,7 @@ double SegmentationAbstract::findThresholdRosin(){
     }
 
     IOHelper::export2Text(histForPlot, "hist2d");
+	trace.info()<<"threshold: "<< bestThresIndex*res + minValue<<std::endl;
     return bestThresIndex*res + minValue;
 }
 
@@ -228,6 +230,7 @@ void SegmentationAbstract::convertToCcs(){
 		//z
         myPoints[i].height = beginOfSegment[segmentId] + dist;
 
+
         double angle = acos(vectRadial.dot(vectMarks[segmentId])/
                 vectMarks[segmentId].norm()/vectRadial.norm());
         //Z3i::RealPoint crossProduct = vectMarks[segmentId].crossProduct(vectRadial);
@@ -239,8 +242,7 @@ void SegmentationAbstract::convertToCcs(){
 		//angle
         myPoints[i].angle = angle;
 	}
-	radii = sumRadii/pointCloud.size();
-
+	radii = sumRadii / pointCloud.size();
 }
 
 

@@ -43,11 +43,11 @@ main(int argc,char **argv)
         ("accRadius,r", po::value<double>(), "accumulation radius.")
         ("trackStep,s", po::value<double>(), "tracking step.")
         ("invertNormal,n", "invert normal to apply accumulation.")
-        ("arcLength,a", po::value<double>()->default_value(3.0), "Arc length/ width of band")
-        ("binWidth,b", po::value<double>()->default_value(5.0), "Arc length/ width of band")
-        ("patchHeight,e", po::value<int>()->default_value(5), "The number of segment used to compute ... should be odd")
+        ("binWidth,b", po::value<double>()->default_value(5.0), "bin width used to compute threshold")
+        ("patchWidth,a", po::value<double>()->default_value(25), "Arc length/ width of patch")
+        ("patchHeight,e", po::value<int>()->default_value(100), "Height of patch")
 		("voxelSize", po::value<int>()->default_value(1), "Voxel size")
-        ("output,o", po::value<std::string>()->default_value("defect"), "output");
+        ("output,o", po::value<std::string>()->default_value("output"), "output prefix: output-defect.off, output-def-faces-ids, ...");
 
     bool parseOK=true;
     po::variables_map vm;
@@ -59,8 +59,14 @@ main(int argc,char **argv)
 	}
 
 	po::notify(vm);
-	if(vm.count("help")||argc<=1|| !parseOK || !vm.count("input") || !vm.count("accRadius"))
-	{
+	if(vm.count("help") || argc<=1 || !parseOK || !vm.count("input") || !vm.count("accRadius") || !vm.count("trackStep")){
+		if(!vm.count("input")){
+			trace.error()<<"the input mesh is required!"<<std::endl;
+		}else if( !vm.count("accRadius") ){
+			trace.error()<<"the accRadius is required!"<<std::endl;
+		}else if( !vm.count("trackStep") ){
+			trace.error()<<"the trackStep is required!"<<std::endl;
+		}
 		trace.info()<< "Segmentation log defects" <<std::endl << "Options: "<<std::endl
 			<< general_opt << "\n";
 		return 0;
@@ -76,7 +82,7 @@ main(int argc,char **argv)
 	double trackStep = vm["trackStep"].as<double>() / voxelSize;
 	bool invertNormal = vm.count("invertNormal");
 
-	double binWidth = vm["binWidth"].as<double>() / voxelSize;
+	double binWidth = vm["binWidth"].as<double>();
 
     DGtal::Mesh<Z3i::RealPoint> oriMesh(true);
     std::string inputMeshName = vm["input"].as<std::string>();
@@ -112,16 +118,26 @@ trace.info()<<"accRadius:"<<accRadius<<std::endl;
 						 Z3i::Point((int) ptUp[0], (int) ptUp[1], (int) ptUp[2]));
 
 	std::vector<Z3i::RealPoint> centerline = CenterlineHelper::getSmoothCenterlineBSplines(domain, fiber);
+	//return 1;
+	//write centerline
+	Mesh<Z3i::RealPoint> transMesh = oriMesh;
+	for(unsigned int i =0; i< transMesh.nbFaces(); i++){
+		transMesh.setFaceColor(i, DGtal::Color(120, 120 ,120, 180));
+	}
+	Mesh<Z3i::RealPoint>::createTubularMesh(transMesh, fiber, 1, 0.1, DGtal::Color::Blue);
+	Mesh<Z3i::RealPoint>::createTubularMesh(transMesh, centerline, 1, 0.1, DGtal::Color::Red);
 
-    double arcLength = vm["arcLength"].as<double>(); 
+	IOHelper::export2OFF(transMesh, "centerline.off");
+
+    double patchWidth = vm["patchWidth"].as<double>(); 
     int patchHeight = vm["patchHeight"].as<int>(); 
 
-trace.info()<<"arc:"<<arcLength<<std::endl;
+trace.info()<<"arc:"<<patchWidth<<std::endl;
 trace.info()<<"fiber:"<<centerline.size()<<std::endl;
 trace.info()<<"pointcloud:"<<pointCloud.size()<<std::endl;
 
     std::vector<unsigned int> noDefectCloudIndices;
-    DefectSegmentation sa(pointCloud, centerline, arcLength, patchHeight, binWidth);
+    DefectSegmentation sa(pointCloud, centerline, patchWidth, patchHeight, binWidth);
     sa.init();
     std::vector<unsigned int> defects = sa.getDefect();
     std::vector<double> distances = sa.getDistances();
@@ -129,8 +145,10 @@ trace.info()<<"pointcloud:"<<pointCloud.size()<<std::endl;
     double minValue = 0.0;
     double maxValue = 10.0;
     DGtal::GradientColorMap<double, CMAP_JET>  gradientShade(minValue, maxValue); 
-    for (unsigned int i = 0; i < scaledMesh.nbFaces(); i++){
-        Face aFace = scaledMesh.getFace(i);
+	
+    DGtal::Mesh<Z3i::RealPoint> errorMesh = oriMesh;
+    for (unsigned int i = 0; i < errorMesh.nbFaces(); i++){
+        Face aFace = errorMesh.getFace(i);
         //centroid
         double err = 0.0;
         for (unsigned int k = 0; k < aFace.size(); k++){
@@ -143,7 +161,7 @@ trace.info()<<"pointcloud:"<<pointCloud.size()<<std::endl;
         if(err > maxValue){
             err = maxValue;
         }
-        scaledMesh.setFaceColor(i, gradientShade(err));
+        errorMesh.setFaceColor(i, gradientShade(err));
     }
 
     std::vector<bool> defectFlags(pointCloud.size(), false);
@@ -181,7 +199,7 @@ trace.info()<<"pointcloud:"<<pointCloud.size()<<std::endl;
     //write output mesh
     std::string outputPrefix = vm["output"].as<std::string>();
     std::string errorFile = outputPrefix + "-error.off";
-    IOHelper::export2OFF(scaledMesh,errorFile);
+    IOHelper::export2OFF(errorMesh,errorFile);
 
     std::string defectFile = outputPrefix + "-defect.off";
     IOHelper::export2OFF(oriMesh,defectFile);

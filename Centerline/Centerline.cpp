@@ -28,20 +28,25 @@ Centerline::optimizeElasticForces(std::vector<Z3i::RealPoint> aFiberRaw, double 
 
     std::vector<std::vector<unsigned int> > vectAssociations;
     //Oz
-	Z3i::RealPoint dir(0,0,1);
     double sumRadiis = 0.0;
     int nbFaces = 0;
     std::vector<Z3i::RealPoint> aFiber;
+	std::cout<<"#####"<<std::endl;
+	std::cout<<accRadius<<std::endl;
     for (unsigned int i = 0; i < aFiberRaw.size(); i++){
         Z3i::RealPoint ptFiber (aFiberRaw.at(i)[0], aFiberRaw.at(i)[1], aFiberRaw.at(i)[2]);
 		//trace.error()<< "Dir: "<< dirImage(ptFiber)<<std::endl;
         std::vector<unsigned int> someFaces = CenterlineHelper::getSectionFacesFromDirection(mesh, aFiberRaw.at(i),
                 dirImage(ptFiber), 0.1, 1.5*accRadius);
+		trace.info()<<"#########"<<std::endl;
+		trace.info()<<ptFiber<<std::endl;
+		trace.info()<<dirImage(ptFiber)<<std::endl;
         if(someFaces.size() <= 0){
             continue;
         }
         aFiber.push_back(aFiberRaw.at(i));
-		//trace.info()<<"nbfaces: "<<someFaces.size();
+
+trace.info()<<"nbfaces: "<<someFaces.size()<<std::endl;
         vectAssociations.push_back(someFaces);
         mapPtMeshRing.push_back(someFaces);
 
@@ -62,11 +67,12 @@ Centerline::optimizeElasticForces(std::vector<Z3i::RealPoint> aFiberRaw, double 
 
         nbFaces += someFaces.size();
         radiusRing.push_back(sumRadii / someFaces.size());
-       optiMesh.push_back(ptFiber);
+        optiMesh.push_back(ptFiber);
     }
     //ring with no face
     double radii = sumRadiis / nbFaces;
-
+	std::cout<<"radii: "<<radii<<std::endl;
+	
     double deltaE;
     unsigned int  num = 0;
     double previousTot = 0;
@@ -128,10 +134,12 @@ Centerline::optimizeElasticForces(std::vector<Z3i::RealPoint> aFiberRaw, double 
             deltaE = totalError;
             first = false;
         }else{
-            deltaE = std::abs(previousTot - totalError);
+            //deltaE = std::abs(previousTot - totalError);
+            deltaE = previousTot - totalError;
         }
-
-        previousTot = totalError;    
+		std::cout << " Total error:" << totalError << std::endl;
+		std::cout << " delta E:" << deltaE << std::endl;
+        previousTot = totalError;
     }
 
     return optiMesh;
@@ -175,7 +183,7 @@ Centerline::trackPatchCenter(const Z3i::Point &aStartingPoint, bool firstDirecti
       dirVect *= -1.0;
     }
     //dirVect = (dirVect + lastDirVect ).getNormalized();
-    trace.error() << "dirVect" << dirVect<<std::endl;
+    //trace.error() << "dirVect" << dirVect<<std::endl;
     continueTracking = isFurtherInside(currentPoint, previousPoint, trackStep );
     if (!continueTracking) {
       trace.info() << std::endl << "Dir  track "<< dirVect << std::endl;
@@ -215,7 +223,7 @@ Centerline::trackPatchCenter(const Z3i::Point &aStartingPoint, bool firstDirecti
     previousPoint = currentPoint;
     currentPoint = embedder(CenterlineHelper::getMaxCoords(patchImage));
     Z3i::RealPoint newDirVect = (currentPoint - previousPoint)/(currentPoint - previousPoint).norm();
-    trace.error()<<"angle"<<acos(newDirVect.dot(dirVect))<<std::endl;
+    //trace.error()<<"angle"<<acos(newDirVect.dot(dirVect))<<std::endl;
     //should not go back
     if(acos(newDirVect.dot(dirVect)) < M_PI/2){
         trace.error()<<"----------------" << std::endl;
@@ -326,6 +334,10 @@ Centerline::accumulate(double epsilonArea=0.1){
           currentPoint += scanDir;
       }
 	}
+    //normalize
+	for(ImageVector::Domain::ConstIterator it = dirImage.domain().begin(); it!= dirImage.domain().end(); it++){
+		  dirImage.setValue(*it, dirImage(*it)/dirImage(*it).norm());
+	}
 
 	return pointPosMax;
 }
@@ -336,6 +348,17 @@ Centerline::compute(){
     Z3i::Point maxAccPoint = accumulate();
 	std::vector<Z3i::RealPoint> vectFiber = trackCenterline(maxAccPoint);
     std::vector<Z3i::RealPoint> optiFiber = optimizeElasticForces(vectFiber, 0.000001);
+	//write centerline
+	Mesh<Z3i::RealPoint> transMesh = mesh;
+	for(unsigned int i =0; i< transMesh.nbFaces(); i++){
+		transMesh.setFaceColor(i, DGtal::Color(120, 120 ,120, 180));
+	}
+	Mesh<Z3i::RealPoint>::createTubularMesh(transMesh, vectFiber, 1, 0.1, DGtal::Color::Blue);
+	Mesh<Z3i::RealPoint>::createTubularMesh(transMesh, optiFiber, 1, 0.1, DGtal::Color::Red);
+	IOHelper::export2Text(vectFiber, "vectFiber.xyz");
+	IOHelper::export2Text(optiFiber, "optiFiber.xyz");
+	IOHelper::export2OFF(transMesh, "debugCen.off");
+
 
 	return optiFiber;
 }

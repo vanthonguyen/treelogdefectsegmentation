@@ -22,6 +22,9 @@ cmake ..  -DDGtal_DIR=/path/to/DGtal
 make
 ```
 #User guide
+If you want you can also directly test the programm online:
+
+=======
 User can find the example in the Main.cpp that include:
 * Computation of centerline:
 ```

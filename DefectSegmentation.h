@@ -19,7 +19,7 @@
 #include "SegmentationAbstract.h"
 #include "CylindricalPoint.h"
 
-#define BIN_SIZE 0.01
+//#define BIN_SIZE 0.01
 using namespace DGtal;
 
 
