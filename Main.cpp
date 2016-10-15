@@ -145,8 +145,10 @@ trace.info()<<"pointcloud:"<<pointCloud.size()<<std::endl;
     double minValue = 0.0;
     double maxValue = 10.0;
     DGtal::GradientColorMap<double, CMAP_JET>  gradientShade(minValue, maxValue); 
-    for (unsigned int i = 0; i < scaledMesh.nbFaces(); i++){
-        Face aFace = scaledMesh.getFace(i);
+	
+    DGtal::Mesh<Z3i::RealPoint> errorMesh = oriMesh;
+    for (unsigned int i = 0; i < errorMesh.nbFaces(); i++){
+        Face aFace = errorMesh.getFace(i);
         //centroid
         double err = 0.0;
         for (unsigned int k = 0; k < aFace.size(); k++){
@@ -159,7 +161,7 @@ trace.info()<<"pointcloud:"<<pointCloud.size()<<std::endl;
         if(err > maxValue){
             err = maxValue;
         }
-        scaledMesh.setFaceColor(i, gradientShade(err));
+        errorMesh.setFaceColor(i, gradientShade(err));
     }
 
     std::vector<bool> defectFlags(pointCloud.size(), false);
@@ -197,7 +199,7 @@ trace.info()<<"pointcloud:"<<pointCloud.size()<<std::endl;
     //write output mesh
     std::string outputPrefix = vm["output"].as<std::string>();
     std::string errorFile = outputPrefix + "-error.off";
-    IOHelper::export2OFF(scaledMesh,errorFile);
+    IOHelper::export2OFF(errorMesh,errorFile);
 
     std::string defectFile = outputPrefix + "-defect.off";
     IOHelper::export2OFF(oriMesh,defectFile);
