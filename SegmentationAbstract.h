@@ -131,9 +131,9 @@ class SegmentationAbstract{
         //difference between
         std::vector<double> distances;
 
-		//bin width used by Rosin method
-		double binWidth;
-            
+        //bin width used by Rosin method
+        double binWidth;
+
         double radii;
 };
 #endif

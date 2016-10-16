@@ -6,6 +6,10 @@ accRadius=200
 voxelSize=5
 trackStep=25
 
+if [[ "$1" = "reset" ]]
+then
+    rm -f *-def-faces.id
+fi
 #results
 resultDir=results
 if [[ ! -d "$resultDir" ]]
