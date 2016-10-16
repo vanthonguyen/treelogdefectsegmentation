@@ -122,13 +122,13 @@ main(int argc,char **argv)
     IOHelper::export2OFF(mesh1, outName);
 
     //std::ofstream outMesh(outName.c_str());
-    std::vector<unsigned int> fids;
-    for(unsigned int i = 0; i < groundtrueFlags.size(); i++){
-        if(!groundtrueFlags[i]){
-            fids.push_back(i);
-        }
-    }
-    mesh1.removeFaces(fids);
-    IOHelper::export2OFF(mesh1, "test"+outName);
+    //std::vector<unsigned int> fids;
+    //for(unsigned int i = 0; i < groundtrueFlags.size(); i++){
+    //    if(!groundtrueFlags[i]){
+    //        fids.push_back(i);
+    //    }
+    //}
+    //mesh1.removeFaces(fids);
+    //IOHelper::export2OFF(mesh1, "test"+outName);
     //export yellow part
 }
