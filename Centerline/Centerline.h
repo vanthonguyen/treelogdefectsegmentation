@@ -51,70 +51,67 @@ class Centerline{
 
 // ----------------------- Standard methods ------------------------------
 public:
-	Centerline( const Mesh<Z3i::RealPoint> &aMesh, const double aRadius, double step, bool iNormal):  
-		mesh(aMesh),
-		accRadius(aRadius), 
-		trackStep(step),
-		invertNormal(iNormal),
-		accImage(Z3i::Domain()), dirImage(Z3i::Domain()){
-		std::pair<DGtal::Z3i::RealPoint, DGtal::Z3i::RealPoint> boudingBox = mesh.getBoundingBox();
-		Z3i::RealPoint ptLow = boudingBox.first;
-		Z3i::RealPoint ptUp = boudingBox.second;
-		domain = Z3i::Domain(Z3i::Point((int) ptLow[0], (int) ptLow[1], (int) ptLow[2]),
-										Z3i::Point((int) ptUp[0], (int) ptUp[1], (int) ptUp[2]));
-		accImage = Image3D(domain);
-		dirImage = ImageVector(domain);
-	}
+    Centerline( const Mesh<Z3i::RealPoint> &aMesh, const double aRadius, double step, bool iNormal):  
+        mesh(aMesh),
+        accRadius(aRadius), 
+        trackStep(step),
+        invertNormal(iNormal),
+        accImage(Z3i::Domain()), dirImage(Z3i::Domain()){
+            std::pair<DGtal::Z3i::RealPoint, DGtal::Z3i::RealPoint> boudingBox = mesh.getBoundingBox();
+            Z3i::RealPoint ptLow = boudingBox.first;
+            Z3i::RealPoint ptUp = boudingBox.second;
+            domain = Z3i::Domain(Z3i::Point((int) ptLow[0], (int) ptLow[1], (int) ptLow[2]),
+                    Z3i::Point((int) ptUp[0], (int) ptUp[1], (int) ptUp[2]));
+            accImage = Image3D(domain);
+            dirImage = ImageVector(domain);
+        }
 
-
-	std::vector<Z3i::RealPoint> compute();
+    std::vector<Z3i::RealPoint> compute();
 
 //protected functions
 protected:
-	
 
-	// Optimize fiber according sections vertex
-	std::vector<Z3i::RealPoint>
-	optimizeElasticForces(std::vector<Z3i::RealPoint> aFiberRaw, double epsilon);
+    // Optimize fiber according sections vertex
+    std::vector<Z3i::RealPoint>
+    optimizeElasticForces(std::vector<Z3i::RealPoint> aFiberRaw, double epsilon);
 
-	// Used to detect end of tracking
-	bool
-	isFurtherInside(const Z3i::RealPoint &aPoint,
-					const Z3i::RealPoint &aPreviousPoint, double aDistance );
+    // Used to detect end of tracking
+    bool
+    isFurtherInside(const Z3i::RealPoint &aPoint,
+                const Z3i::RealPoint &aPreviousPoint, double aDistance );
 
-	// Track patch center in one direction 
-	std::vector<Z3i::RealPoint>
-	trackPatchCenter(const Z3i::Point &aStartingPoint, bool firstDirection);
+    // Track patch center in one direction 
+    std::vector<Z3i::RealPoint>
+    trackPatchCenter(const Z3i::Point &aStartingPoint, bool firstDirection);
 
-	/**
-	 * Main method for tracking skeleton points from image. 
-	 * Tracking the centerline from the maximum density point by two directions
-	 * @return raw centerline
-	 */
-	std::vector<Z3i::RealPoint>
-	trackCenterline(const Z3i::Point &aStartingPoint);
+    /**
+     * Main method for tracking skeleton points from image. 
+     * Tracking the centerline from the maximum density point by two directions
+     * @return raw centerline
+     */
+    std::vector<Z3i::RealPoint>
+    trackCenterline(const Z3i::Point &aStartingPoint);
 
-	/**
-	 * Main method for computing tube accumulation values.  
-	 * It also computes the vector image representing the main
-	 * axis directionfrom vectorial products from the intersection map (to
-	 * help the tracking process).  
-	 * @return the maximum accumulation point.
-	 */
-	Z3i::Point
-	accumulate(double epsilonArea);
+    /**
+     * Main method for computing tube accumulation values.  
+     * It also computes the vector image representing the main
+     * axis directionfrom vectorial products from the intersection map (to
+     * help the tracking process).  
+     * @return the maximum accumulation point.
+     */
+    Z3i::Point
+    accumulate(double epsilonArea);
 
-// protected attributes:
+    // protected attributes:
 protected:
-	
     Mesh<Z3i::RealPoint> mesh;
-	double accRadius; // the maximal radius of accumulation
-	Z3i::Domain domain; // the domain of the mesh
+    double accRadius; // the maximal radius of accumulation
+    Z3i::Domain domain; // the domain of the mesh
 
-	Image3D accImage;  //store accumulation value
-	ImageVector dirImage; //store direction
-	double trackStep;	//the distance between 2 steps using by tracking algo
-	bool invertNormal;
+    Image3D accImage;  //store accumulation value
+    ImageVector dirImage; //store direction
+    double trackStep;	//the distance between 2 steps using by tracking algo
+    bool invertNormal;
 
 };
 

@@ -68,6 +68,7 @@ SegmentationAbstract::allocate(){
 double SegmentationAbstract::findThresholdRosin(){
     //build histogram
     double res = binWidth; //must be configurable?
+//trace.error()<<"binWidth:"<<binWidth<<std::endl;
     double maxValue = *std::max_element(distances.begin(), distances.end());
     double minValue = *std::min_element(distances.begin(), distances.end());
     double range = maxValue - minValue;
@@ -153,6 +154,7 @@ double SegmentationAbstract::findThresholdRosin(){
     }
 
     IOHelper::export2Text(histForPlot, "hist2d");
+	trace.info()<<"threshold: "<< bestThresIndex*res + minValue<<std::endl;
     return bestThresIndex*res + minValue;
 }
 
@@ -218,14 +220,14 @@ void SegmentationAbstract::convertToCcs(){
         Z3i::RealPoint vectRadial = getRadialVector(pointCloud[i], aDir, fiber[segmentId]);
         double ra = vectRadial.norm();
         sumRadii += ra;
-		//radius of point
+        //radius of point
         myPoints[i].radius = ra;
 
         Z3i::RealPoint p0 = fiber[segmentId];
         Z3i::RealPoint vectDir = getDirectionVector(segmentId);
         Z3i::RealPoint vect = aPoint - p0;
         double dist = vect.dot(vectDir);
-		//z
+        //z
         myPoints[i].height = beginOfSegment[segmentId] + dist;
 
 
@@ -237,10 +239,10 @@ void SegmentationAbstract::convertToCcs(){
         {
             angle = 2 * M_PI - angle;
         }
-		//angle
+        //angle
         myPoints[i].angle = angle;
-	}
-	radii = sumRadii / pointCloud.size();
+    }
+    radii = sumRadii / pointCloud.size();
 }
 
 
@@ -347,7 +349,7 @@ std::vector<unsigned int> SegmentationAbstract::getPatch(unsigned int pointIndex
 
 
     
-    trace.info()<<minHeight<<std::endl;
+    //trace.info()<<minHeight<<std::endl;
     Z3i::RealPoint currentPoint = pointCloud.at(pointIndex);
     CylindricalPoint mpCurrent = myPoints.at(pointIndex);
     pcl::PointXYZ searchPoint(currentPoint[0], currentPoint[1], currentPoint[2]);
