@@ -28,7 +28,9 @@ addons:
     - g++-4.8
     - gcc-4.8
     - libeigen3-dev 
-
+    - libpcl-all
+    - libgsl0-dev
+    
 before_install:
   - env
   - export SRC_DIR="`pwd`"
