@@ -28,9 +28,7 @@ addons:
     - g++-4.8
     - gcc-4.8
     - libeigen3-dev 
-    - libpcl-all
-    - libgsl0-dev
-    
+   
 before_install:
   - env
   - export SRC_DIR="`pwd`"
@@ -41,26 +39,29 @@ before_install:
   - export BOOST_DOWNLOAD_URL="http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.bz2/download"
   - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost"
   - export CMAKE_MODULE_PATH="$BOOST_ROOT"
+  - wget ftp://ftp.gnu.org/gnu/gsl/gsl-1.7.tar.gz
   - if [ ! -f "$DOWNLOAD_ROOT/boost.tar.bz2" ]; then wget --no-verbose --output-document="$DOWNLOAD_ROOT/boost.tar.bz2" "$BOOST_DOWNLOAD_URL"; fi
   - if [ ! -d "$BOOST_ROOT" ]; then mkdir -p "$BOOST_ROOT" && tar jxf "$DOWNLOAD_ROOT/boost.tar.bz2" --strip-components=1 -C "$BOOST_ROOT"; fi
   - if [ ! -f "$BOOST_ROOT/b2" ]; then cd "$BOOST_ROOT"; ./bootstrap.sh --with-toolset="$BOOST_TOOLSET" --with-libraries=program_options; fi
-
+  # Manual install of gsl: 
+  - cd $SRC_DIR; wget ftp://ftp.gnu.org/gnu/gsl/gsl-1.7.tar.gz
+  - tar -zxvf gsl-1.7.tar.gz; cd gsl-1.7;
+  - mkdir $SRC_DIR/gsl
+  - ./configure --prefix=$SRC_DIR/gsl
+  - make; make check; make install
+  - cd $SRC_DIR
+  - git clone git://github.com/DGtal-team/DGtal.git
+  - cd DGtal; mkdir build; cd build;
+  - cmake .. $DGTALTYPE  -DCMAKE_CXX_COMPILER=$CXXCOMPILER -DCMAKE_C_COMPILER=$CCOMPILER -DBOOST_ROOT=$BOOST_ROOT
+  - make 
 
 before_script:
   - 'echo "using gcc : : ccache $CXX : <cflags>-std=c11 <cxxflags>-std=c++11 ;" > ~/user-config.jam'
   - 'echo "using clang : : ccache $CXX : <cflags>-std=c11 <cxxflags>-std=c++11 ;" >> ~/user-config.jam'
   - cd "$BOOST_ROOT"; ./b2 toolset="$BOOST_TOOLSET" threading=multi --prefix="$BOOST_ROOT" -d0 install
-  - cd $SRC_DIR
-  - git clone git://github.com/DGtal-team/DGtal.git
-  - cd DGtal
-  - cmake . $DGTALTYPE  -DCMAKE_CXX_COMPILER=$CXXCOMPILER -DCMAKE_C_COMPILER=$CCOMPILER -DBOOST_ROOT=$BOOST_ROOT
-  - make 
-  - cd ..
 
-script: 
-  - mkdir build; cd build
-  - cmake ..
-  - make
-  - cd ../..
-  - cmake . -DCMAKE_BUILD_TYPE=Debug -DDGtal_DIR=$PWD/DGtal -DCMAKE_CXX_COMPILER=$CXXCOMPILER -DCMAKE_C_COMPILER=$CCOMPILER -DBOOST_ROOT=$BOOST_ROOT
+script:
+  - cd $TRAVIS_BUILD_DIR;
+  - mkdir build; cd build;
+  - cmake .. -DCMAKE_BUILD_TYPE=Debug -DDGtal_DIR=$SRC_DIR/DGtal/build/ -DGSL_DIR=$SRC_DIR/gsl -DCMAKE_CXX_COMPILER=$CXXCOMPILER -DCMAKE_C_COMPILER=$CCOMPILER -DBOOST_ROOT=$BOOST_ROOT  -DGSL_LIBRARY=$SRC_DIR/gsl/lib/libgsl.dylib  -DGSL_LIBRARY=$SRC_DIR/gsl/lib -DGSL_INCLUDE_DIR=$SRC_DIR/gsl/include -DGSL_ROOT_DIR=$SRC_DIR/gsl
   - make
