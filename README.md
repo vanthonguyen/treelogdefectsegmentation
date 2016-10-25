@@ -56,3 +56,7 @@ IOHelper::export2Text(defects, outputPrefix + "-defect.id");
   100 --trackStep 25 --patchWidth 25 --patchHeight 100 \
   --binWidth 5 --invertNormal true --output prefix
 ```
+
+
+
+[![Build Status](https://travis-ci.org/vanthonguyen/treelogdefectsegmentation.svg?branch=master)](https://travis-ci.org/vanthonguyen/treelogdefectsegmentation)
