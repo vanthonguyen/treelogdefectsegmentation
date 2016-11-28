@@ -44,9 +44,16 @@ endif( Boost_FOUND)
 SET(PCLLib ${PCL_SEGMENTATION_LIBRARIES})
 
 ADD_EXECUTABLE(segmentation Main Statistic IOHelper DefectSegmentation SegmentationAbstract 
-	Centerline/Centerline)
+    Centerline/Centerline)
 TARGET_LINK_LIBRARIES(segmentation ${DGTAL_LIBRARIES}  ${DGtalToolsLibDependencies} ${PCLLib} ${GSL_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT})
+
+ADD_EXECUTABLE(segcyl MainCylinder Statistic IOHelper DefectSegmentationCylinder SegmentationAbstract
+    Centerline/Centerline)
+TARGET_LINK_LIBRARIES(segcyl ${DGTAL_LIBRARIES}  ${DGtalToolsLibDependencies} ${PCLLib} ${GSL_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT})
+
+
 
 ADD_EXECUTABLE(colorizeMesh colorizeMesh IOHelper)
 TARGET_LINK_LIBRARIES(colorizeMesh ${DGTAL_LIBRARIES}  ${DGtalToolsLibDependencies})
